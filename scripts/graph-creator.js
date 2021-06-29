@@ -484,6 +484,7 @@ document.onload = (function(d3, saveAs, Blob, undefined) {
         d = {
           id: thisGraph.idct++,
           title: "",
+          type: "circle",
           x: xycoords[0],
           y: xycoords[1],
           eventTypeId: null
@@ -572,6 +573,7 @@ document.onload = (function(d3, saveAs, Blob, undefined) {
 
     // update existing nodes
     thisGraph.circles = thisGraph.circles.data(thisGraph.nodes, function(d) {
+      console.log(d);
       return d.id;
     });
     thisGraph.circles.attr("transform", function(d) {
@@ -605,8 +607,25 @@ document.onload = (function(d3, saveAs, Blob, undefined) {
       })
       .call(thisGraph.drag);
 
-    newGs.append("circle")
-      .attr("r", String(consts.nodeRadius));
+      
+      newGs.each(function(d) {
+        if (d.type === "circle") {
+          d3.select(this).append("circle")
+          .attr("r", String(consts.nodeRadius));
+          
+        } else if (d.type === "rect") {
+          d3.select(this).append("rect")
+            .attr("fill", "#F6FBFF")
+            .attr("stroke", "black")
+            .attr("stroke-width", "2px")
+            .attr("x", "-50px")
+            .attr("y", "-50px")
+            .attr("width", "100px")
+            .attr("height", "100px");
+
+        }
+      })
+
 
     newGs.each(function(d) {
       thisGraph.insertTitleLinebreaks(d3.select(this), d.title);
@@ -653,27 +672,49 @@ document.onload = (function(d3, saveAs, Blob, undefined) {
   var nodes = [{
     title: "Process Map Step 1",
     id: 0,
+    type: "circle",
     x: xLoc,
     y: yLoc,
     eventTypeId: null
   }, {
     title: "Process Map Step 2",
     id: 1,
+    type: "circle",
     x: xLoc,
     y: yLoc + 200,
     eventTypeId: null
+  }, {
+    title: "Process Map Step 3",
+    id: 2,
+    type: "rect",
+    x: xLoc,
+    y: yLoc + 400,
+    eventTypeId: null
+  }, {
+    title: "Process Map Step 4",
+    id: 3,
+    type: "circle",
+    x: xLoc + 200,
+    y: yLoc + 600,
+    eventTypeId: null
   }];
-  var edges = [{
-    source: nodes[0],
-    target: nodes[1]
-  }];
+  var edges = [
+    {
+      source: nodes[0],
+      target: nodes[1]
+    },
+    {
+      source: nodes[1],
+      target: nodes[2]
+    }
+  ];
 
   /** MAIN SVG **/
   var svg = d3.select("body").append("svg")
     .attr("width", width)
     .attr("height", height);
   var graph = new GraphCreator(svg, nodes, edges);
-  graph.setIdCt(2);
+  graph.setIdCt(3);
   graph.updateGraph();
 })(window.d3, window.saveAs, window.Blob);
 
